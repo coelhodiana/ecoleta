@@ -5,7 +5,7 @@ import { Link } from 'react-router-dom';
 import { FiArrowLeft } from 'react-icons/fi';
 import { Map, TileLayer, Marker } from 'react-leaflet';
 import api from '../../services/api';
-import { inflate } from 'zlib';
+import axios from 'axios';
 
 //Com typescript sempre que criarmos um estado para array ou objeto é necessário informar manualmente o tipo da variável que será armazenada
 
@@ -15,13 +15,25 @@ interface Item {
     image_url: string;
 }
 
+interface IBGEUFResponse {
+    sigla: string;
+}
+
 const CreatePoint = () => {
     const [ items, setItems ] = useState<Item[]>([]);
+    const [ ufs, setUfs] = useState<string[]>([]);
 
     useEffect(() => {
         api.get('items').then(response => {
             setItems(response.data);
         })
+    }, []);
+
+    useEffect(() => {
+        axios.get<IBGEUFResponse[]>('https://servicodados.ibge.gov.br/api/v1/localidades/estados/').then(response => {
+            const ufInitials = response.data.map(uf => uf.sigla)
+            setUfs(ufInitials);
+        });
     }, []);
 
     return ( 
@@ -89,7 +101,9 @@ const CreatePoint = () => {
                         <div className="field">
                             <label htmlFor="uf">Estado (UF)</label>
                             <select name="uf" id="uf">
-                                <option value="0">Selecione um estado</option>
+                                {ufs.map(uf => (
+                                    <option key={uf} value={uf}>{uf}</option>
+                                ))}
                             </select>
                         </div>
 
