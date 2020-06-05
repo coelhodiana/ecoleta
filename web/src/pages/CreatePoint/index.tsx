@@ -6,6 +6,7 @@ import { FiArrowLeft } from 'react-icons/fi';
 import { Map, TileLayer, Marker } from 'react-leaflet';
 import api from '../../services/api';
 import axios from 'axios';
+import { LeafletMouseEvent } from 'leaflet';
 
 //Com typescript sempre que criarmos um estado para array ou objeto é necessário informar manualmente o tipo da variável que será armazenada
 
@@ -30,6 +31,7 @@ const CreatePoint = () => {
 
     const [ selectedUf, setSelectedUf ] = useState('0');
     const [ selectedCity, setSelectedCity ] = useState('0');
+    const [ selectedPosition, setSelectedPosition ] = useState<[number, number]>([0, 0]);
     
 
     useEffect(() => {
@@ -67,6 +69,13 @@ const CreatePoint = () => {
     function handleSelectedCity(event: ChangeEvent<HTMLSelectElement>) {
         const city = event.target.value;
         setSelectedCity(city);
+    }
+
+    function handleMapClick(event: LeafletMouseEvent) {
+        setSelectedPosition([
+            event.latlng.lat,
+            event.latlng.lng
+        ])
     }
 
     return ( 
@@ -122,12 +131,12 @@ const CreatePoint = () => {
                         <span>Selecione o endereço no mapa</span>
                     </legend>
 
-                    <Map center={[ -23.4994308, -46.4577652 ]} zoom={ 15 }>
+                    <Map center={[ -23.4994308, -46.4577652 ]} zoom={ 15 } onClick={handleMapClick}>
                         <TileLayer
                             attribution='&amp;copy <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
                             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
                         />
-                        <Marker position={[ -23.4994308, -46.4577652 ]}/>
+                        <Marker position={selectedPosition}/>
                     </Map>
 
                     <div className="field-group">
