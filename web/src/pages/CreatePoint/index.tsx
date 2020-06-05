@@ -24,6 +24,8 @@ interface IBGECityResponse {
     nome: string;
 }
 
+
+
 const CreatePoint = () => {
     const [ items, setItems ] = useState<Item[]>([]);
     const [ ufs, setUfs] = useState<string[]>([]);
@@ -31,8 +33,15 @@ const CreatePoint = () => {
 
     const [ initialPosition, setinitialPosition ] = useState<[number, number]>([0, 0]);
 
+    const [ formData, setFormData ] = useState({
+        name: '',
+        email: '',
+        whatsapp: ''
+    });
+
     const [ selectedUf, setSelectedUf ] = useState('0');
     const [ selectedCity, setSelectedCity ] = useState('0');
+    const  [ selectedItems, setSelectedItems ] = useState<number[]>([]);
     const [ selectedPosition, setSelectedPosition ] = useState<[number, number]>([0, 0]);
     
     useEffect(() => {
@@ -87,6 +96,24 @@ const CreatePoint = () => {
         ])
     }
 
+    function hanfleInputChange (event: ChangeEvent<HTMLInputElement>) {
+        const { name, value } = event.target;
+
+        setFormData({ ...formData, [name]: value })
+    }
+
+    function handleSelectItem(id: number) {
+        const alredySelected = selectedItems.findIndex(item => item === id);
+
+        if (alredySelected >= 0) {
+            const filteredItems = selectedItems.filter(item => item !== id);
+
+            setSelectedItems(filteredItems);
+        } else {
+            setSelectedItems([ ...selectedItems, id ]);
+        }
+    }
+
     return ( 
         <div id="page-create-point">
             <header>
@@ -108,9 +135,10 @@ const CreatePoint = () => {
                     <div className="field">
                         <label htmlFor="name">Nome da entidade</label>
                         <input 
-                        type="text"
-                        name="name"
-                        id="name"
+                            type="text"
+                            name="name"
+                            id="name"
+                            onChange={hanfleInputChange}
                         />
                     </div>
                     <div className="field-group">
@@ -120,6 +148,7 @@ const CreatePoint = () => {
                                 type="email"
                                 name="email"
                                 id="email"
+                                onChange={hanfleInputChange}
                             />
                         </div>
 
@@ -129,6 +158,7 @@ const CreatePoint = () => {
                                 type="text"
                                 name="whatsapp"
                                 id="whatsapp"
+                                onChange={hanfleInputChange}
                             />
                         </div>
                     </div>
@@ -195,7 +225,11 @@ const CreatePoint = () => {
                     </legend>
                     <ul className="items-grid">
                         {items.map(item => (
-                            <li key={item.id}>
+                            <li 
+                                key={item.id} 
+                                onClick={() => handleSelectItem(item.id)}
+                                className={selectedItems.includes(item.id) ? 'selected' : ''}
+                            >
                                 <img src={item.image_url} alt={item.title} />
                                 <span>{item.title}</span>
                             </li>
